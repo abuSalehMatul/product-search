@@ -1,33 +1,32 @@
 
 {
   let inp = document.getElementById('mat_input');
-  let currentFocus, allVendors = [], processedVal = [], totalSearchRes = [], finalResult;
+  let allVendors = [], processedVal = [], totalSearchRes = [], finalResult;
 
   inp.addEventListener("keyup", function (e) {
     //console.log('take one');
-    let container, matchingEl, currentSearchIndex, currentRes = [],
-      inputValue = e.target.value, splittedInpValue;
+    let container, currentRes = [], inputValue = e.target.value, splittedInpValue;
     if (e.keyCode == 32 || !inputValue || e.keyCode == 188) return false;
     splittedInpValue = inputValue.split(",");
-    splittedInpValue = splittedInpValue.map(splic=> splic.trim())
-    for(let ittr =0 ; ittr < splittedInpValue.length ; ittr++) {
+    splittedInpValue = splittedInpValue.map(split => split.trim())
+    for (let ittr = 0; ittr < splittedInpValue.length; ittr++) {
       let val = splittedInpValue[ittr];
       if (!val) return false;
-      if(processedVal.includes(val)) continue; //will contain only 2+ value... one before comma other after comma
+      if (processedVal.includes(val)) continue; //will contain only 2+ value... one before comma other after comma
       else processedVal.push(val);
-      closeAllLists();
-      currentSearchIndex = ittr;
-      currentFocus = -1;
+
       /*append the DIV element as a child of the autocomplete container:*/
-      container = document.createElement("DIV");
-      container.id = e.target.id + "autocomplete-list";
-      container.setAttribute("class", "autocomplete-items");
-      e.target.parentNode.appendChild(container);
+      // container = document.createElement("DIV");
+      // container.id = e.target.id + "autocomplete-list";
+      // container.setAttribute("class", "autocomplete-items");
+      // e.target.parentNode.appendChild(container);
+      // console.log(inp.parentNode);
+      // console.log(e.target.parentNode)
       //.................................................................
       $.ajax({
         url: "https://groceryfinder.myshopify.com/search",
         data: {
-          q:  val,
+          q: val,
           type: "product",
           view: "json",
         },
@@ -37,44 +36,27 @@
           //console.log(data);
           vendors = data.map(el => el.vendor);
           vendors = vendors.filter((v, i, a) => a.indexOf(v) === i);
-          if (typeof allVendors[currentSearchIndex] == "undefined") {
+          if (typeof allVendors[ittr] == "undefined") {
             allVendors.push(vendors);
           } else {
-            allVendors[currentSearchIndex] = vendors;
+            allVendors[ittr] = vendors;
           }
-         // console.log('all vendores ', allVendors)
+          // console.log('all vendores ', allVendors)
           currentRes = [];
           for (let i = 0; i < vendors.length; i++) {
             let tem = {};
             tem[vendors[i]] = [];
             currentRes.push(tem);
           }
-          // for (let i = 0; i < productsObj.length; i++) {
-          //     /*create a DIV element for each matching element:*/
-          //     matchingEl = document.createElement("DIV");
-          //     /*make the matching letters bold:*/
-          //     matchingEl.innerHTML = "<span class='mat-heighlight'>" + productsObj[i].title.substr(0, val.length) + "</span>";
-          //     matchingEl.innerHTML += productsObj[i].title.substr(val.length);
-          //     /*insert a input field that will hold the current array item's value:*/
-          //     matchingEl.innerHTML += "<input type='hidden' value='" + productsObj[i].handle + "'>";
-          //     /*execute a function when someone clicks on the item value (DIV element):*/
-          //     matchingEl.addEventListener("click", function (e) {
-          //       /*insert the value for the autocomplete text field:*/
-          //       inp.value += this.getElementsByTagName("input")[0].value;
-          //       closeAllLists();
-          //       inp.focus();
-          //     });
-          //     container.appendChild(matchingEl);
-
-          // }
           for (let i = 0; i < data.length; i++) {
             currentRes = buildCurrentRes(data[i].vendor, data[i], currentRes);
           }
           totalSearchRes[val] = currentRes;
           //console.log(val, totalSearchRes);
-         // console.log('current res ', currentRes);
-          finalResult = getFinalResult(totalSearchRes, splittedInpValue); 
+          // console.log('current res ', currentRes);
+          finalResult = getFinalResult(totalSearchRes, splittedInpValue);
           removeDuplicate(finalResult);
+          drawAutoComplete(finalResult, ittr);
         }
       });
     }
@@ -90,54 +72,91 @@
     return resArr;
   }
 
-  function getFinalResult(allRes, splitedVal){
+  function getFinalResult(allRes, splitedVal) {
     let mergedContainer = {};
     splitedVal.forEach(inputNo => {
-       // console.log('matched res ',allRes[inputNo])
-        for(let i=0; i< allRes[inputNo].length; i++){
-          let sObj = Object.entries(allRes[inputNo][i]);
-          if(typeof mergedContainer[`${sObj[0][0]}`] == "undefined"){
-            mergedContainer[`${sObj[0][0]}`] = sObj[0][1]
-            // console.log(mergedContainer)
-          }else{
-            mergedContainer[`${sObj[0][0]}`] =  mergedContainer[`${sObj[0][0]}`].concat(sObj[0][1]);
-          }
+      // console.log('matched res ',allRes[inputNo])
+      for (let i = 0; i < allRes[inputNo].length; i++) {
+        let sObj = Object.entries(allRes[inputNo][i]);
+        if (typeof mergedContainer[`${sObj[0][0]}`] == "undefined") {
+          mergedContainer[`${sObj[0][0]}`] = sObj[0][1]
+          // console.log(mergedContainer)
+        } else {
+          mergedContainer[`${sObj[0][0]}`] = mergedContainer[`${sObj[0][0]}`].concat(sObj[0][1]);
         }
+      }
     });
     return mergedContainer;
   }
 
-  function removeDuplicate(results){
-     if(typeof results == "object"){
-       let resultSeperated = Object.entries(results);
-       resultSeperated.forEach(res =>{
-          let key = res[0];
-          let values = res[1];
-          let ids = values.map(obj => obj.id);
-          let duplicates =[];
-          ids.sort(function(a, b){return a - b});
-          for(let i =0 ;i<ids.length - 1; i++){
-            if(ids[i] == ids[i+1]){
-              duplicates.push(ids[i+1])
+  function removeDuplicate(results) {
+    if (typeof results == "object") {
+      let resultSeperated = Object.entries(results);
+      resultSeperated.forEach(res => {
+        let key = res[0];
+        let values = res[1];
+        let ids = values.map(obj => obj.id);
+        let duplicates = [];
+        ids.sort(function (a, b) { return a - b });
+        for (let i = 0; i < ids.length - 1; i++) {
+          if (ids[i] == ids[i + 1]) {
+            duplicates.push(ids[i + 1])
+          }
+        }
+        for (let i = values.length - 1; i >= 0; i--) {
+          if (duplicates.includes(values[i].id)) {
+            let temId = values[i].id;
+            values.splice(i, 1);
+            for (let j = 0; j < duplicates.length; j++) {
+              if (duplicates[j] == temId) {
+                duplicates.splice(j, 1);
+              }
             }
           }
-          for(let i= values.length - 1; i >=0 ; i--){
-             if(duplicates.includes(values[i].id)){
-                let temId = values[i].id;
-                values.splice(i, 1);
-                for(let j=0; j < duplicates.length; j++){
-                  if(duplicates[j]== temId){
-                     duplicates.splice(j,1);
-                  }
-                }
-             }
-          }
+        }
 
-         results[`${key}`] = values
+        results[`${key}`] = values
 
-       })
-     }
-     return results;
+      })
+    }
+    return results;
+  }
+
+  function drawAutoComplete(results, currentSearchIndex) {
+    closeAllLists();
+    let currentFocus = -1, shopEl, container;
+    container = document.createElement("DIV");
+    container.id = inp.id + "-autocomplete-list";
+    container.setAttribute("class", "autocomplete-items");
+    inp.parentNode.appendChild(container);
+    let vendorsAndProducts = Object.entries(results);
+    console.log(vendorsAndProducts)
+    for (let i = 0; i < vendorsAndProducts.length; i++) {
+      let arrow =  '<svg height="15px" version="1.1" id="mat-plus" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g><g><path d="M256,0C114.833,0,0,114.833,0,256s114.833,256,256,256s256-114.853,256-256S397.167,0,256,0z M256,472.341 c-119.275,0-216.341-97.046-216.341-216.341S136.725,39.659,256,39.659S472.341,136.705,472.341,256S375.295,472.341,256,472.341z"/></g></g><g><g><path d="M355.148,234.386H275.83v-79.318c0-10.946-8.864-19.83-19.83-19.83s-19.83,8.884-19.83,19.83v79.318h-79.318 c-10.966,0-19.83,8.884-19.83,19.83s8.864,19.83,19.83,19.83h79.318v79.318c0,10.946,8.864,19.83,19.83,19.83 s19.83-8.884,19.83-19.83v-79.318h79.318c10.966,0,19.83-8.884,19.83-19.83S366.114,234.386,355.148,234.386z"/></g></g></svg>';
+      shopEl = document.createElement("DIV");
+      shopEl.id = "mat-shop-"+i;
+      shopEl.innerHTML = "<span class='mat-heighlight'>" + arrow + vendorsAndProducts[i][0] + "</span>";
+      /*execute a function when someone clicks on the item value (DIV element):*/
+      shopEl.addEventListener("click", function (e) {
+         e.stopPropagation();
+         let productContainer = document.createElement("div");
+         for(let j =0 ; j < vendorsAndProducts[i][1].length ; j++){
+            let productDiv = document.createElement('div');
+            productDiv.classList.add("mat-product-insearch");
+            let image = document.createElement('img');
+            image.src =  vendorsAndProducts[i][1][j].featured_image;
+            productDiv.append(image);
+            let title = document.createElement('span');
+            title.innerHTML = vendorsAndProducts[i][1][j].title;
+            productDiv.append(title);
+            productContainer.append(productDiv);
+         }
+         document.getElementById("mat-shop-"+i).append(productContainer)
+        
+      });
+      container.appendChild(shopEl);
+
+    }
   }
 
   inp.addEventListener("keydown", function (e) {
