@@ -139,22 +139,29 @@
       /*execute a function when someone clicks on the item value (DIV element):*/
       shopEl.addEventListener("click", function (e) {
          e.stopPropagation();
-         let productContainer = document.createElement("div");
-         for(let j =0 ; j < vendorsAndProducts[i][1].length ; j++){
-            let productDiv = document.createElement('div');
-            productDiv.classList.add("mat-product-insearch");
-            let image = document.createElement('img');
-            image.src =  vendorsAndProducts[i][1][j].featured_image;
-            productDiv.append(image);
-            let title = document.createElement('span');
-            title.innerHTML = vendorsAndProducts[i][1][j].title;
-            productDiv.append(title);
-            productContainer.append(productDiv);
+         if(document.getElementById("mat-product-container-"+i).style.display == "none"){
+          $("#mat-product-container-"+i).show(500);
+         }else{
+          $("#mat-product-container-"+i).hide(500);
          }
-         document.getElementById("mat-shop-"+i).append(productContainer)
-        
       });
       container.appendChild(shopEl);
+
+      let productContainer = document.createElement("div");
+      productContainer.id="mat-product-container-"+i;
+      productContainer.style.display = "none";
+      for(let j =0 ; j < vendorsAndProducts[i][1].length ; j++){
+         let productDiv = document.createElement('div');
+         productDiv.classList.add("mat-product-insearch");
+         let image = document.createElement('img');
+         image.src =  vendorsAndProducts[i][1][j].featured_image;
+         productDiv.append(image);
+         let title = document.createElement('span');
+         title.innerHTML = vendorsAndProducts[i][1][j].title;
+         productDiv.append(title);
+         productContainer.append(productDiv);
+      }
+      shopEl.append(productContainer);
 
     }
   }
