@@ -4,14 +4,16 @@
   let currentFocus, allVendors = [], processedVal = [], totalSearchRes = [], finalResult;
 
   inp.addEventListener("keyup", function (e) {
+    //console.log('take one');
     let container, matchingEl, currentSearchIndex, currentRes = [],
       inputValue = e.target.value, splittedInpValue;
     if (e.keyCode == 32 || !inputValue || e.keyCode == 188) return false;
     splittedInpValue = inputValue.split(",");
+    splittedInpValue = splittedInpValue.map(splic=> splic.trim())
     for(let ittr =0 ; ittr < splittedInpValue.length ; ittr++) {
-      let val = splittedInpValue[ittr].trim();
+      let val = splittedInpValue[ittr];
       if (!val) return false;
-      if(processedVal.includes(val)) continue;
+      if(processedVal.includes(val)) continue; //will contain only 2+ value... one before comma other after comma
       else processedVal.push(val);
       closeAllLists();
       currentSearchIndex = ittr;
@@ -41,6 +43,7 @@
             allVendors[currentSearchIndex] = vendors;
           }
          // console.log('all vendores ', allVendors)
+          currentRes = [];
           for (let i = 0; i < vendors.length; i++) {
             let tem = {};
             tem[vendors[i]] = [];
@@ -67,8 +70,11 @@
           for (let i = 0; i < data.length; i++) {
             currentRes = buildCurrentRes(data[i].vendor, data[i], currentRes);
           }
-          totalSearchRes[ittr] = currentRes;
-          finalResult = getFinalResult(totalSearchRes, ittr);
+          totalSearchRes[val] = currentRes;
+          //console.log(val, totalSearchRes);
+         // console.log('current res ', currentRes);
+          finalResult = getFinalResult(totalSearchRes, splittedInpValue); 
+          removeDuplicate(finalResult);
         }
       });
     }
@@ -84,34 +90,54 @@
     return resArr;
   }
 
-  function getFinalResult(allRes, currentSearchIndex){
-    let bigContainer ={};
-    for(let i=0; i<=currentSearchIndex; i++){
-       console.log("curent ", allRes[i])
-       for(let j=0; j<allRes[i].length; j++){
-          let currentKey = Object.keys(allRes[i][j]);
-          if(typeof bigContainer[`${currentKey}`] != "undefined"){
-            let tem = bigContainer[`${currentKey}`];
-            allRes[i][j][`${currentKey}`].forEach(item =>{
-              if(!checkDuplicate(tem , item))
-              tem.push(item);
-            })
-            bigContainer[`${currentKey}`] = tem;
-
+  function getFinalResult(allRes, splitedVal){
+    let mergedContainer = {};
+    splitedVal.forEach(inputNo => {
+       // console.log('matched res ',allRes[inputNo])
+        for(let i=0; i< allRes[inputNo].length; i++){
+          let sObj = Object.entries(allRes[inputNo][i]);
+          if(typeof mergedContainer[`${sObj[0][0]}`] == "undefined"){
+            mergedContainer[`${sObj[0][0]}`] = sObj[0][1]
+            // console.log(mergedContainer)
           }else{
-            bigContainer[`${currentKey}`] = allRes[i][j][`${currentKey}`]
+            mergedContainer[`${sObj[0][0]}`] =  mergedContainer[`${sObj[0][0]}`].concat(sObj[0][1]);
           }
-       }
-    }
-    return bigContainer;
+        }
+    });
+    return mergedContainer;
   }
 
-  function checkDuplicate(compareWith, niddle){
-    let dup =0 ;
-    compareWith.forEach(com =>{
-        if(com.id == niddle.id) dup= 1;
-    })
-    return dup == 1;
+  function removeDuplicate(results){
+     if(typeof results == "object"){
+       let resultSeperated = Object.entries(results);
+       resultSeperated.forEach(res =>{
+          let key = res[0];
+          let values = res[1];
+          let ids = values.map(obj => obj.id);
+          let duplicates =[];
+          ids.sort(function(a, b){return a - b});
+          for(let i =0 ;i<ids.length - 1; i++){
+            if(ids[i] == ids[i+1]){
+              duplicates.push(ids[i+1])
+            }
+          }
+          for(let i= values.length - 1; i >=0 ; i--){
+             if(duplicates.includes(values[i].id)){
+                let temId = values[i].id;
+                values.splice(i, 1);
+                for(let j=0; j < duplicates.length; j++){
+                  if(duplicates[j]== temId){
+                     duplicates.splice(j,1);
+                  }
+                }
+             }
+          }
+
+         results[`${key}`] = values
+
+       })
+     }
+     return results;
   }
 
   inp.addEventListener("keydown", function (e) {
