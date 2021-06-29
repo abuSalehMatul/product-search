@@ -50,6 +50,7 @@
 .mat-product-insearch span{
     width: 87%;
     margin: auto;
+    padding-left: 5px;
 }
 .mat-product-insearch:hover{
     color: #048a4b;
