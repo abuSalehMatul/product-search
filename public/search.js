@@ -1,14 +1,18 @@
 
 {
   let inp = document.getElementById('mat_input');
-  let allVendors = [], processedVal = [], totalSearchRes = [], finalResult;
-
+  let finder = document.getElementById("mat-search-finder");
+  let allVendors = [], totalSearchRes = [], finalResult;
+  var matTakenInput = "", matTakenClick = 0, matAllSplitedValue;
   inp.addEventListener("keyup", function (e) {
     let  inputValue = e.target.value, splittedInpValue;
     if (e.keyCode == 32 || !inputValue || e.keyCode == 188) return false;
-
+    if(inputValue == matTakenInput) return false;
+    matTakenInput = inputValue;
+    
     splittedInpValue = inputValue.split(",");
     splittedInpValue = splittedInpValue.map(split => split.trim())
+    matAllSplitedValue = splittedInpValue;
     for (let ittr = 0; ittr < splittedInpValue.length; ittr++) {
       let val = splittedInpValue[ittr];
       if (!val) return false;
@@ -24,7 +28,6 @@
         finalResult = getFinalResult(totalSearchRes, modifiedVal);
         drawAutoComplete(finalResult, ittr);
       } else {
-        console.log('internet');
         $.ajax({
           url: "https://groceryfinder.myshopify.com/search",
           data: {
@@ -165,6 +168,10 @@
         let title = document.createElement('span');
         title.innerHTML = vendorsAndProducts[i][1][j].title;
         productDiv.append(title);
+        productDiv.addEventListener('click', (e)=>{
+            e.stopPropagation();
+            window.location.href = "https://groceryfinder.myshopify.com/products/"+ vendorsAndProducts[i][1][j].handle;
+        })
         productContainer.append(productDiv);
       }
       shopEl.append(productContainer);
@@ -212,6 +219,20 @@
       x[i].classList.remove("autocomplete-active");
     }
   }
+
+  finder.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    e.preventDefault();
+    if(matTakenClick == 0){
+      matTakenClick = 1;
+    }else return "";
+    matAllSplitedValue = JSON.stringify(matAllSplitedValue);
+    console.log(matAllSplitedValue);
+    let redirectionUrl = `https://${Shopify.shop}/pages/finder?search-result=${matTakenInput}`;
+    console.log(redirectionUrl);
+    //window.location.href = redirectionUrl;
+
+  })
   function closeAllLists(elmnt) {
     /*close all autocomplete lists in the document,
     except the one passed as an argument:*/
@@ -222,6 +243,7 @@
       }
     }
   }
+  function matJsonToURI(json) { return encodeURIComponent(JSON.stringify(json)); }
   document.addEventListener("click", function (e) {
     closeAllLists(e.target);
   });
