@@ -1,143 +1,70 @@
 
 {
-  let inp = document.getElementById('mat_input');
-  let finder = document.getElementById("mat-search-finder");
-  let allVendors = [], totalSearchRes = [], finalResult;
-  var matTakenInput = "", matTakenClick = 0, matAllSplitedValue;
-  inp.addEventListener("keyup", function (e) {
-    let  inputValue = e.target.value, splittedInpValue;
+  let matInpBox = document.getElementById('mat_input');
+  let matFinder = document.getElementById("mat-search-finder");
+  var matTakenInput = "", matTakenClick = 0, matAllSplitedValue, matSplittedInpValue, matTotalSearchRes = [];
+  matInpBox.addEventListener("keyup", function (e) {
+    let inputValue = e.target.value;
     if (e.keyCode == 32 || !inputValue || e.keyCode == 188) return false;
-    if(inputValue == matTakenInput) return false;
+    if (inputValue == matTakenInput) return false;
     matTakenInput = inputValue;
-    
-    // splittedInpValue = inputValue.split(",");
-    // splittedInpValue = splittedInpValue.map(split => split.trim())
-    // matAllSplitedValue = splittedInpValue;
-    // for (let ittr = 0; ittr < splittedInpValue.length; ittr++) {
-    //   let val = splittedInpValue[ittr];
-    //   if (!val) return false;
 
-    //   if (typeof totalSearchRes[val] != "undefined") {
-    //     let ind = splittedInpValue.indexOf(val);
-    //     let modifiedVal = [];
-    //     for(let k=0; k < splittedInpValue.length; k++){
-    //       if(k <= ind){
-    //           modifiedVal.push(splittedInpValue[k])
-    //       }
-    //     }
-    //     finalResult = getFinalResult(totalSearchRes, modifiedVal);
-    //     drawAutoComplete(finalResult, ittr);
-    //   } else {
-    //     $.ajax({
-    //       url: "https://groceryfinder.myshopify.com/search",
-    //       data: {
-    //         q: val,
-    //         type: "product",
-    //         view: "json",
-    //       },
-    //       dataType: "json",
-    //       success: function (data) {
-    //         processor(data, ittr, val, splittedInpValue);
-    //       }
-    //     });
-    //   }
+    matSplittedInpValue = inputValue.split(",");
+    matSplittedInpValue = matSplittedInpValue.map(split => split.trim())
+    let val = matSplittedInpValue[matSplittedInpValue.length - 1];
+    if (!val) return false;
+    if (typeof matTotalSearchRes[val] != "undefined") {
+      matDrawAutoComplete(matTotalSearchRes, val)
+    } else {
+      $.ajax({
+        url: "https://groceryfinder.myshopify.com/search",
+        data: {
+          q: val + "*",
+          type: "product",
+          view: "json",
+        },
+        dataType: "json",
+        success: function (data) {
+          matTotalSearchRes[val] = data;
+          matDrawAutoComplete(matTotalSearchRes, val)
+        }
+      });
+    }
 
-    // }
 
   });
 
-  // function processor(data, ittr, val, splittedInpValue) {
-  //   let currentRes = []
-  //   let vendors = [];
-  //   //console.log(data);
-  //   vendors = data.map(el => el.vendor);
-  //   vendors = vendors.filter((v, i, a) => a.indexOf(v) === i);
-  //   if (typeof allVendors[ittr] == "undefined") {
-  //     allVendors.push(vendors);
-  //   } else {
-  //     allVendors[ittr] = vendors;
-  //   }
-  //   for (let i = 0; i < vendors.length; i++) {
-  //     let tem = {};
-  //     tem[vendors[i]] = [];
-  //     currentRes.push(tem);
-  //   }
-  //   for (let i = 0; i < data.length; i++) {
-  //     currentRes = buildCurrentRes(data[i].vendor, data[i], currentRes);
-  //   }
-  //   totalSearchRes[val] = currentRes;
-  //   // console.log('toatla res ',  totalSearchRes[val]);
-  //   finalResult = getFinalResult(totalSearchRes, splittedInpValue);
-  //   removeDuplicate(finalResult);
-  //   drawAutoComplete(finalResult, ittr);
-  // }
-
-  // function buildCurrentRes(vendor, productData, resArr) {
-  //   for (let i = 0; i < resArr.length; i++) {
-  //     if (Object.keys(resArr[i])[0] == vendor) {
-  //       resArr[i][`${vendor}`].push(productData)
-  //     }
-  //   }
-  //   return resArr;
-  // }
-
-  // function getFinalResult(allRes, splitedVal) {
-  //   let mergedContainer = {};
-  //   splitedVal.forEach(inputNo => {
-  //     // console.log('matched res ',allRes[inputNo])
-  //     for (let i = 0; i < allRes[inputNo].length; i++) {
-  //       let sObj = Object.entries(allRes[inputNo][i]);
-  //       if (typeof mergedContainer[`${sObj[0][0]}`] == "undefined") {
-  //         mergedContainer[`${sObj[0][0]}`] = sObj[0][1]
-        
-  //       } else {
-  //         mergedContainer[`${sObj[0][0]}`] = mergedContainer[`${sObj[0][0]}`].concat(sObj[0][1]);
-  //       }
-  //     }
-  //   });
-  //   return mergedContainer;
-  // }
-
-  // function removeDuplicate(results) {
-  //   if (typeof results == "object") {
-  //     let resultSeperated = Object.entries(results);
-  //     resultSeperated.forEach(res => {
-  //       let key = res[0];
-  //       let values = res[1];
-  //       let ids = values.map(obj => obj.id);
-  //       let duplicates = [];
-  //       ids.sort(function (a, b) { return a - b });
-  //       for (let i = 0; i < ids.length - 1; i++) {
-  //         if (ids[i] == ids[i + 1]) {
-  //           duplicates.push(ids[i + 1])
-  //         }
-  //       }
-  //       for (let i = values.length - 1; i >= 0; i--) {
-  //         if (duplicates.includes(values[i].id)) {
-  //           let temId = values[i].id;
-  //           values.splice(i, 1);
-  //           for (let j = 0; j < duplicates.length; j++) {
-  //             if (duplicates[j] == temId) {
-  //               duplicates.splice(j, 1);
-  //             }
-  //           }
-  //         }
-  //       }
-
-  //       results[`${key}`] = values
-
-  //     })
-  //   }
-  //   return results;
-  // }
+  function matDrawAutoComplete(finalResult, val) {
+    closeAllLists();
+    let container = document.createElement("DIV"), matchingEl;
+    container.id = matInpBox.id + "autocomplete-list";
+    container.setAttribute("class", "autocomplete-items");
+    matInpBox.parentNode.appendChild(container);
+    let productsObj = finalResult[val];
+    for (let i = 0; i < productsObj.length; i++) {
+      matchingEl = document.createElement("DIV");
+      matchingEl.innerHTML = productsObj[i].title;
+      matchingEl.addEventListener("click", function (e) {
+        let valueOnBox = "";
+        for(let i=0 ; i< matSplittedInpValue.length - 1; i++){
+            valueOnBox += matSplittedInpValue[i] + ",";
+        }
+        valueOnBox += productsObj[i].title + ",";
+        matInpBox.value = valueOnBox;
+        closeAllLists();
+        matInpBox.focus();
+      });
+      container.appendChild(matchingEl);
+    }
+  }
 
   function drawAutoComplete(results, currentSearchIndex) {
     closeAllLists();
     let currentFocus = -1, shopEl, container;
     container = document.createElement("DIV");
-    container.id = inp.id + "-autocomplete-list";
+    container.id = matInpBox.id + "-autocomplete-list";
     container.setAttribute("class", "autocomplete-items");
-    inp.parentNode.appendChild(container);
+    matInpBox.parentNode.appendChild(container);
     let vendorsAndProducts = Object.entries(results);
     console.log(vendorsAndProducts)
     for (let i = 0; i < vendorsAndProducts.length; i++) {
@@ -168,9 +95,9 @@
         let title = document.createElement('span');
         title.innerHTML = vendorsAndProducts[i][1][j].title;
         productDiv.append(title);
-        productDiv.addEventListener('click', (e)=>{
-            e.stopPropagation();
-            window.location.href = "https://groceryfinder.myshopify.com/products/"+ vendorsAndProducts[i][1][j].handle;
+        productDiv.addEventListener('click', (e) => {
+          e.stopPropagation();
+          window.location.href = "https://groceryfinder.myshopify.com/products/" + vendorsAndProducts[i][1][j].handle;
         })
         productContainer.append(productDiv);
       }
@@ -179,58 +106,15 @@
     }
   }
 
-  inp.addEventListener("keydown", function (e) {
-    var x = document.getElementById(this.id + "autocomplete-list");
-    if (x) x = x.getElementsByTagName("div");
-    if (e.keyCode == 40) {
-      /*If the arrow DOWN key is pressed,
-      increase the currentFocus variable:*/
-      currentFocus++;
-      /*and and make the current item more visible:*/
-      addActive(x);
-    } else if (e.keyCode == 38) { //up
-      /*If the arrow UP key is pressed,
-      decrease the currentFocus variable:*/
-      currentFocus--;
-      /*and and make the current item more visible:*/
-      addActive(x);
-    } else if (e.keyCode == 13) {
-      /*If the ENTER key is pressed, prevent the form from being submitted,*/
-      e.preventDefault();
-      if (currentFocus > -1) {
-        /*and simulate a click on the "active" item:*/
-        if (x) x[currentFocus].click();
-      }
-    }
-  });
-  function addActive(x) {
-    /*a function to classify an item as "active":*/
-    if (!x) return false;
-    /*start by removing the "active" class on all items:*/
-    removeActive(x);
-    if (currentFocus >= x.length) currentFocus = 0;
-    if (currentFocus < 0) currentFocus = (x.length - 1);
-    /*add class "autocomplete-active":*/
-    x[currentFocus].classList.add("autocomplete-active");
-  }
-  function removeActive(x) {
-    /*a function to remove the "active" class from all autocomplete items:*/
-    for (var i = 0; i < x.length; i++) {
-      x[i].classList.remove("autocomplete-active");
-    }
-  }
-
-  finder.addEventListener("click", (e)=>{
+  matFinder.addEventListener("click", (e) => {
     e.stopPropagation();
     e.preventDefault();
-    if(matTakenClick == 0){
+    if (matTakenClick == 0) {
       matTakenClick = 1;
-    }else return "";
-    matAllSplitedValue = JSON.stringify(matAllSplitedValue);
-    console.log(matAllSplitedValue);
+    } else return "";
     let redirectionUrl = `https://${Shopify.shop}/pages/finder?search-result=${matTakenInput}`;
     console.log(redirectionUrl);
-    //window.location.href = redirectionUrl;
+    window.location.href = redirectionUrl;
 
   })
   function closeAllLists(elmnt) {
@@ -238,12 +122,12 @@
     except the one passed as an argument:*/
     var x = document.getElementsByClassName("autocomplete-items");
     for (var i = 0; i < x.length; i++) {
-      if (elmnt != x[i] && elmnt != inp) {
+      if (elmnt != x[i] && elmnt != matInpBox) {
         x[i].parentNode.removeChild(x[i]);
       }
     }
   }
-  function matJsonToURI(json) { return encodeURIComponent(JSON.stringify(json)); }
+
   document.addEventListener("click", function (e) {
     closeAllLists(e.target);
   });
