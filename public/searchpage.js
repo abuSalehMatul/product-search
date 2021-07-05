@@ -5,8 +5,7 @@
     splittedInpValue = searchString.split(",");
     splittedInpValue = splittedInpValue.map(split => split.trim());
     splittedInpValue = splittedInpValue.filter(split => split.length > 0);
-    // console.log("original splited", splittedInpValue);
-    //let ittr = 0;
+
     matGetSearch(0, splittedInpValue);
 
     function matGetSearch(ittr, splittedInpValue){
@@ -65,9 +64,7 @@
         }
         matulFinalResult = getFinalResult(matulTotalSearchRes, modifiedVal);
         removeDuplicate(matulFinalResult);
-        //console.log("fi", matulFinalResult);
         matDrawSearchRes(matulFinalResult);
-        // drawAutoComplete(matulFinalResult, ittr);
     }
 
 
@@ -81,12 +78,8 @@
     }
 
     function getFinalResult(allRes, splitedVal) {
-      //  console.log("all res" , allRes);
-        //console.log('splited values', splitedVal)
         let mergedContainer = {};
         splitedVal.forEach(inputNo => {
-            //console.log('matched res ', allRes[inputNo]);
-           // console.log("getting matched for", inputNo)
             for (let i = 0; i < allRes[inputNo].length; i++) {
                 let sObj = Object.entries(allRes[inputNo][i]);
                 if (typeof mergedContainer[`${sObj[0][0]}`] == "undefined") {
@@ -97,7 +90,6 @@
                 }
             }
         });
-        //console.log("final", mergedContainer)
         return mergedContainer;
     }
 
@@ -134,24 +126,60 @@
         return results;
     }
 
+    function calculateMatulPercentage(){
+        console.log(matulAllVendors);
+        let totalSearchItem = matulAllVendors.length;
+        let matulAllVendorPerCentage = {};
+        for(let i=0; i< matulAllVendors.length; i++){
+            for(let j=0 ;j<matulAllVendors[i].length;j++){
+                if(typeof matulAllVendorPerCentage[matulAllVendors[i][j]] != "undefined"){
+                    let temp = matulAllVendorPerCentage[matulAllVendors[i][j]];
+                    temp++;
+                    matulAllVendorPerCentage[matulAllVendors[i][j]] = temp;
+                }else{
+                    matulAllVendorPerCentage[matulAllVendors[i][j]] = 1;
+                }
+            }
+        }
+        console.log(matulAllVendorPerCentage);
+        let percenEn = Object.entries(matulAllVendorPerCentage);
+        // console.log(percenEn)
+        percenEn.forEach(element => {
+            let temp = matulAllVendorPerCentage[element[0]];
+            temp = temp / totalSearchItem;
+            matulAllVendorPerCentage[element[0]] = temp;
+        })
+        console.log(matulAllVendorPerCentage);
+        return matulAllVendorPerCentage;
+    }
+
     function matDrawSearchRes(allResult){
         let vendorsAndProducts = Object.entries(allResult);
-        console.log(vendorsAndProducts);
+        let vendorPercentage = calculateMatulPercentage();
         for(let i=0 ; i<vendorsAndProducts.length; i++){
+            let percentage = (vendorPercentage[vendorsAndProducts[i][0]] * 100).toFixed(2);
+            let info = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="#858585" class="bi bi-info-square-fill mat-percentage-info" viewBox="0 0 16 16">
+                            <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                        </svg>`;
+            let infoDiv = "<div class='matul-info-div'> From you search results, "+ percentage + " percentage of products are available on this store </div>";
+           
             let container = document.createElement("div");
             container.classList.add("grid-item");
             container.id = "mat-shop-"+i;
-            let header = '<header class="section-header mat-shop-header" id="shop-name-"'+i+'> <h1 class="section-header--title section-header--left h1 mat-shop-name" id="">' + vendorsAndProducts[i][0] +'</h1> </header>';
+            let header = '<header class="section-header mat-shop-header" id="shop-name-"'+i+'>' +
+            '<h1 class="section-header--title section-header--left h1 mat-shop-name" style="display:inline-block" id="">'
+            + vendorsAndProducts[i][0] +
+            '</h1> <h6 class="mat-percentage">'+ percentage+ '% available</h6>' +info + infoDiv +'</header>';
             container.innerHTML = header;
             let allProducts = "";
             for(let j=0; j< vendorsAndProducts[i][1].length; j++){
                 allProducts += `<div class="grid-item small--one-half medium--one-quarter large--one-quarter mat-shop-product">
-                 <a href="${vendorsAndProducts[i][1][j].handle}" id="${vendorsAndProducts[i][1][j].id}" class="product-grid-item"> 
+                 <a href="https://${Shopify.shop + '/products/' + vendorsAndProducts[i][1][j].handle}" id="${vendorsAndProducts[i][1][j].id}" class="product-grid-item"> 
                     <div class="product-grid-image" > 
                         <div class="product-grid-image--centered"> 
                             <div class="lazyload__image-wrapper no-js"> 
                                 <div style="padding-top:100.0%;"> 
-                 <img class="no-js lazyautosizes lazyloaded" src="${vendorsAndProducts[i][1][j].featured_image}" alt="${vendorsAndProducts[i][1][j].title}" > 
+                 <img class="no-js lazyautosizes lazyloaded mat-searched-prod-image" src="${vendorsAndProducts[i][1][j].featured_image}" alt="${vendorsAndProducts[i][1][j].title}" > 
                                 </div>
                             </div>
                         </div>

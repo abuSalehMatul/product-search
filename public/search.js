@@ -5,7 +5,10 @@
   var matTakenInput = "", matTakenClick = 0, matAllSplitedValue, matSplittedInpValue, matTotalSearchRes = [];
   matInpBox.addEventListener("keyup", function (e) {
     let inputValue = e.target.value;
-    if (e.keyCode == 32 || !inputValue || e.keyCode == 188) return false;
+    if (e.keyCode == 32 || !inputValue || e.keyCode == 188) {
+      matCloseAllLists();
+      return false;
+    };
     if (inputValue == matTakenInput) return false;
     matTakenInput = inputValue;
 
@@ -35,15 +38,23 @@
   });
 
   function matDrawAutoComplete(finalResult, val) {
-    closeAllLists();
+    matCloseAllLists();
     let container = document.createElement("DIV"), matchingEl;
     container.id = matInpBox.id + "autocomplete-list";
     container.setAttribute("class", "autocomplete-items");
     matInpBox.parentNode.appendChild(container);
     let productsObj = finalResult[val];
+    console.log("res", productsObj)
     for (let i = 0; i < productsObj.length; i++) {
       matchingEl = document.createElement("DIV");
-      matchingEl.innerHTML = productsObj[i].title;
+      matchingEl.classList.add("mat-product-insearch");
+      let image = document.createElement("img");
+      image.src = productsObj[i].featured_image;
+      matchingEl.append(image);
+      let title = document.createElement("span");
+      title.innerHTML = productsObj[i].title;
+      matchingEl.append(title);
+     // matchingEl.innerHTML = productsObj[i].title;
       matchingEl.addEventListener("click", function (e) {
         let valueOnBox = "";
         for(let i=0 ; i< matSplittedInpValue.length - 1; i++){
@@ -51,7 +62,7 @@
         }
         valueOnBox += productsObj[i].title + ",";
         matInpBox.value = valueOnBox;
-        closeAllLists();
+        matCloseAllLists();
         matInpBox.focus();
       });
       container.appendChild(matchingEl);
@@ -69,7 +80,7 @@
     window.location.href = redirectionUrl;
 
   })
-  function closeAllLists(elmnt) {
+  function matCloseAllLists(elmnt) {
     /*close all autocomplete lists in the document,
     except the one passed as an argument:*/
     var x = document.getElementsByClassName("autocomplete-items");
@@ -81,6 +92,6 @@
   }
 
   document.addEventListener("click", function (e) {
-    closeAllLists(e.target);
+    matCloseAllLists(e.target);
   });
 }
