@@ -1,8 +1,10 @@
 {
     var matulAllVendors = [], matulTotalSearchRes = [], matulFinalResult;
-    let searchString = matulGetParameterByName('search-result'), splittedInpValue;
-
-    splittedInpValue = searchString.split(",");
+    let matSearchString = matulGetParameterByName('search-result'), splittedInpValue;
+    let matSearchBox =  document.getElementById('mat_input');
+    matSearchBox.value = matSearchString;
+   // console.log(matSearchString);
+    splittedInpValue = matSearchString.split(",");
     splittedInpValue = splittedInpValue.map(split => split.trim());
     splittedInpValue = splittedInpValue.filter(split => split.length > 0);
 
@@ -127,9 +129,9 @@
     }
 
     function calculateMatulPercentage(){
-        console.log(matulAllVendors);
         let totalSearchItem = matulAllVendors.length;
         let matulAllVendorPerCentage = {};
+        let matulAllVendorProductHolder = {};
         for(let i=0; i< matulAllVendors.length; i++){
             for(let j=0 ;j<matulAllVendors[i].length;j++){
                 if(typeof matulAllVendorPerCentage[matulAllVendors[i][j]] != "undefined"){
@@ -139,30 +141,56 @@
                 }else{
                     matulAllVendorPerCentage[matulAllVendors[i][j]] = 1;
                 }
+                if(typeof matulAllVendorProductHolder[matulAllVendors[i][j]] != "undefined"){
+                    let temp = matulAllVendorProductHolder[matulAllVendors[i][j]];
+                    temp.push(i);
+                    matulAllVendorProductHolder[matulAllVendors[i][j]] = temp;
+                }else{
+                    let temp = [];
+                    temp.push(i);
+                    matulAllVendorProductHolder[matulAllVendors[i][j]] = temp;
+                }
             }
         }
-        console.log(matulAllVendorPerCentage);
+        //console.log(matulAllVendorProductHolder);
         let percenEn = Object.entries(matulAllVendorPerCentage);
         // console.log(percenEn)
         percenEn.forEach(element => {
             let temp = matulAllVendorPerCentage[element[0]];
-            temp = temp / totalSearchItem;
+            temp = (temp / totalSearchItem).toFixed(2);
             matulAllVendorPerCentage[element[0]] = temp;
         })
-        console.log(matulAllVendorPerCentage);
-        return matulAllVendorPerCentage;
+       
+        return [matulAllVendorPerCentage, matulAllVendorProductHolder];
+    }
+
+    function matulGetProductStr(shopName, obj){
+        let arr = obj[shopName];
+        let str = "";
+        arr.forEach(index => {
+            str += splittedInpValue[index] + ", ";
+        })
+        if(str.length > 0) return str.substring(0, str.length - 2);
+        return str;
     }
 
     function matDrawSearchRes(allResult){
         let vendorsAndProducts = Object.entries(allResult);
-        let vendorPercentage = calculateMatulPercentage();
+        let calcutedVendorRes = calculateMatulPercentage();
+        let vendorPercentage = calcutedVendorRes[0];
+        let vendorContainsProduct = calcutedVendorRes[1];
         for(let i=0 ; i<vendorsAndProducts.length; i++){
-            let percentage = (vendorPercentage[vendorsAndProducts[i][0]] * 100).toFixed(2);
+            let productOnAVendorStr = matulGetProductStr(vendorsAndProducts[i][0], vendorContainsProduct);
+            console.log(productOnAVendorStr)
+            let percentage = ((vendorPercentage[vendorsAndProducts[i][0]]) * 100); //calculate percentage of availability for a shop/vendor
             let info = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="#858585" class="bi bi-info-square-fill mat-percentage-info" viewBox="0 0 16 16">
                             <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
-                        </svg>`;
-            let infoDiv = "<div class='matul-info-div'> From you search results, "+ percentage + " percentage of products are available on this store </div>";
-           
+                        </svg>`; //info svg
+            let infoDiv = "<div class='matul-info-div'> From your search results, "+ percentage + "% of products ("+ productOnAVendorStr +") are available on this store.</div>";
+            let temContainer = document.getElementById("mat-shop-"+i);
+            if(temContainer){
+                temContainer.remove();
+            }
             let container = document.createElement("div");
             container.classList.add("grid-item");
             container.id = "mat-shop-"+i;

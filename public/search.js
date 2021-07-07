@@ -44,7 +44,7 @@
     container.setAttribute("class", "autocomplete-items");
     matInpBox.parentNode.appendChild(container);
     let productsObj = finalResult[val];
-    console.log("res", productsObj)
+  //  console.log("res", productsObj)
     for (let i = 0; i < productsObj.length; i++) {
       matchingEl = document.createElement("DIV");
       matchingEl.classList.add("mat-product-insearch");
@@ -76,7 +76,7 @@
       matTakenClick = 1;
     } else return "";
     let redirectionUrl = `https://${Shopify.shop}/pages/finder?search-result=${encodeURIComponent(matInpBox.value)}`;
-    console.log(redirectionUrl);
+    //console.log(redirectionUrl);
     window.location.href = redirectionUrl;
 
   })
