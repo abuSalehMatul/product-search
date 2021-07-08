@@ -1,3 +1,9 @@
+#mat_input::-webkit-input-placeholder {
+    font-size: 12px;
+    word-break: break-all;
+    opacity: 0.9;
+}
+
 .autocomplete-items div {
     font-family: inherit;
     padding: 9px;
@@ -31,51 +37,62 @@
     color: #05BC66;
     font-weight: 600;
 }
-.mat-heighlight svg{
+
+.mat-heighlight svg {
     position: relative;
     top: 2px;
     padding-right: 5px;
     fill: #05BC66;
 }
-.mat-product-insearch{
+
+.mat-product-insearch {
     display: flex;
     flex-wrap: wrap;
 }
-.mat-product-insearch img{
+
+.mat-product-insearch img {
     width: 13%;
     height: auto;
     display: block;
-    margin:auto;
+    margin: auto;
 }
-.mat-product-insearch span{
+
+.mat-product-insearch span {
     width: 87%;
     margin: auto;
     padding-left: 5px;
 }
-.mat-product-insearch:hover{
+
+.mat-product-insearch:hover {
     color: #048a4b;
 }
-.mat-heighlight:hover{
+
+.mat-heighlight:hover {
     color: #048a4b;
 }
-.mat-heighlight svg:hover{
-    fill:#048a4b;
+
+.mat-heighlight svg:hover {
+    fill: #048a4b;
 }
-.mat-searched-prod-image{
+
+.mat-searched-prod-image {
     width: auto !important;
     height: 100%;
 }
-.mat-percentage{
+
+.mat-percentage {
     display: inline-block;
     padding-left: 10px;
     text-align: center;
 }
-.mat-percentage-info{
+
+.mat-percentage-info {
     position: relative;
     margin-left: 5px;
     cursor: pointer;
 }
-.matul-info-div{
+
+.matul-info-div {
     position: absolute;
     z-index: 100;
     background: white;
@@ -85,9 +102,11 @@
     font-size: 13px;
     border-radius: 5px;
 }
-.mat-shop-header .matul-info-div{
+
+.mat-shop-header .matul-info-div {
     display: none;
 }
-.mat-shop-header:hover .matul-info-div{
+
+.mat-shop-header:hover .matul-info-div {
     display: block;
 }

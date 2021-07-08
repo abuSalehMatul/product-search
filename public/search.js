@@ -44,7 +44,7 @@
     container.setAttribute("class", "autocomplete-items");
     matInpBox.parentNode.appendChild(container);
     let productsObj = finalResult[val];
-  //  console.log("res", productsObj)
+    //  console.log("res", productsObj)
     for (let i = 0; i < productsObj.length; i++) {
       matchingEl = document.createElement("DIV");
       matchingEl.classList.add("mat-product-insearch");
@@ -54,11 +54,11 @@
       let title = document.createElement("span");
       title.innerHTML = productsObj[i].title;
       matchingEl.append(title);
-     // matchingEl.innerHTML = productsObj[i].title;
+      // matchingEl.innerHTML = productsObj[i].title;
       matchingEl.addEventListener("click", function (e) {
         let valueOnBox = "";
-        for(let i=0 ; i< matSplittedInpValue.length - 1; i++){
-            valueOnBox += matSplittedInpValue[i] + ",";
+        for (let i = 0; i < matSplittedInpValue.length - 1; i++) {
+          valueOnBox += matSplittedInpValue[i] + ",";
         }
         valueOnBox += productsObj[i].title + ",";
         matInpBox.value = valueOnBox;
