@@ -1,4 +1,6 @@
 
+//this piece of code will go under the snippet search-bar.liquid
+//there should a minified file in that template of this.. 
 {
   var matInpBox = document.getElementById('mat_input');
   let matFinder = document.getElementById("mat-search-finder");
@@ -20,7 +22,7 @@
       matDrawAutoComplete(matTotalSearchRes, val)
     } else {
       $.ajax({
-        url: "https://groceryfinder.myshopify.com/search",
+        url: window.location.origin + "/search",
         data: {
           q: val + "*",
           type: "product",

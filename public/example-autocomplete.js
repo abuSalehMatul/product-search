@@ -1,3 +1,6 @@
+// this file is taken from web as an example of how might autocomplete design, no use in
+// real project 
+
 function autocomplete(inp, productsObj) {
   let currentFocus;
   inp.addEventListener("keyup", function (e) {

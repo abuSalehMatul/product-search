@@ -1,3 +1,14 @@
+//this piece of js code will be go under template/page.finder.liquid 
+//ther is a html also in this page will is following comments
+
+{/* <div id="mat-search-total-parent">
+    <div class="grid grid-border" id="mat-search-container">
+    </div>
+</div> */}
+
+//under this html js will follow, there are some css too. in theme.liquid file which
+//referenced as  {{ 'mat_style.css' | asset_url | stylesheet_tag }}
+
 {
     var matulAllVendors = [], matulTotalSearchRes = [], matulFinalResult;
     let matSearchString = matulGetParameterByName('search-result'), splittedInpValue;
@@ -13,7 +24,7 @@
         let count = ittr;
         let val = splittedInpValue[ittr];
         $.ajax({
-            url: "https://groceryfinder.myshopify.com/search",
+            url: window.location.origin + "/search",
             data: {
                 q: val,
                 type: "product",
