@@ -3,53 +3,57 @@
 //there should a minified file in that template of this.. 
 {
   var matInpBox;
+  let matFinder;
   window.allInputBoxes = document.getElementsByClassName('mat_input_c');
-  for(let i=0; i<window.allInputBoxes.length;i++){
-    if(window.screen.width < 768){
+  window.allmatFinder = document.getElementsByClassName("mat-search-finder_c");
+  for (let i = 0; i < window.allInputBoxes.length; i++) {
+    if (window.screen.width < 768) {
       matInpBox = window.allInputBoxes[1];
-  	}
-    else{
+      matFinder = window.allmatFinder[1];
+    }
+    else {
       matInpBox = document.getElementById('mat_input');
+      matFinder = document.getElementById("mat-search-finder");
     }
   }
-  
 
-  //var matInpBox = document.getElementById('mat_input');
-  let matFinder = document.getElementById("mat-search-finder");
+  //let matFinder = document.getElementById("mat-search-finder");
   var matTakenInput = "", matTakenClick = 0, matAllSplitedValue, matSplittedInpValue, matTotalSearchRes = [];
-  matInpBox.addEventListener("keyup", function (e) {
-    let inputValue = e.target.value;
-    if (e.keyCode == 32 || !inputValue || e.keyCode == 188) {
-      matCloseAllLists();
-      return false;
-    };
-    if (inputValue == matTakenInput) return false;
-    matTakenInput = inputValue;
+  if (matInpBox) {
+    matInpBox.addEventListener("keyup", function (e) {
+      let inputValue = e.target.value;
+      if (e.keyCode == 32 || !inputValue || e.keyCode == 188) {
+        matCloseAllLists();
+        return false;
+      };
+      if (inputValue == matTakenInput) return false;
+      matTakenInput = inputValue;
 
-    matSplittedInpValue = inputValue.split(",");
-    matSplittedInpValue = matSplittedInpValue.map(split => split.trim())
-    let val = matSplittedInpValue[matSplittedInpValue.length - 1];
-    if (!val) return false;
-    if (typeof matTotalSearchRes[val] != "undefined") {
-      matDrawAutoComplete(matTotalSearchRes, val)
-    } else {
-      $.ajax({
-        url: window.location.origin + "/search",
-        data: {
-          q: val + "*",
-          type: "product",
-          view: "json",
-        },
-        dataType: "json",
-        success: function (data) {
-          matTotalSearchRes[val] = data;
-          matDrawAutoComplete(matTotalSearchRes, val)
-        }
-      });
-    }
+      matSplittedInpValue = inputValue.split(",");
+      matSplittedInpValue = matSplittedInpValue.map(split => split.trim())
+      let val = matSplittedInpValue[matSplittedInpValue.length - 1];
+      if (!val) return false;
+      if (typeof matTotalSearchRes[val] != "undefined") {
+        matDrawAutoComplete(matTotalSearchRes, val)
+      } else {
+        $.ajax({
+          url: window.location.origin + "/search",
+          data: {
+            q: val + "*",
+            type: "product",
+            view: "json",
+          },
+          dataType: "json",
+          success: function (data) {
+            matTotalSearchRes[val] = data;
+            matDrawAutoComplete(matTotalSearchRes, val)
+          }
+        });
+      }
 
 
-  });
+    });
+  }
 
   function matDrawAutoComplete(finalResult, val) {
     matCloseAllLists();
@@ -83,17 +87,20 @@
     }
   }
 
-  matFinder.addEventListener("click", (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    if (matTakenClick == 0) {
-      matTakenClick = 1;
-    } else return "";
-    let redirectionUrl = `https://${Shopify.shop}/pages/finder?search-result=${encodeURIComponent(matInpBox.value)}`;
-    //console.log(redirectionUrl);
-    window.location.href = redirectionUrl;
-
-  })
+  if(matFinder){
+    matFinder.addEventListener("click", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      if (matTakenClick == 0) {
+        matTakenClick = 1;
+      } else return "";
+      let redirectionUrl = `https://${Shopify.shop}/pages/finder?search-result=${encodeURIComponent(matInpBox.value)}`;
+      //console.log(redirectionUrl);
+      window.location.href = redirectionUrl;
+  
+    })
+  }
+  
   function matCloseAllLists(elmnt) {
     /*close all autocomplete lists in the document,
     except the one passed as an argument:*/
