@@ -2,7 +2,19 @@
 //this piece of code will go under the snippet search-bar.liquid
 //there should a minified file in that template of this.. 
 {
-  var matInpBox = document.getElementById('mat_input');
+  var matInpBox;
+  window.allInputBoxes = document.getElementsByClassName('mat_input_c');
+  for(let i=0; i<window.allInputBoxes.length;i++){
+    if(window.screen.width < 768){
+      matInpBox = window.allInputBoxes[1];
+  	}
+    else{
+      matInpBox = document.getElementById('mat_input');
+    }
+  }
+  
+
+  //var matInpBox = document.getElementById('mat_input');
   let matFinder = document.getElementById("mat-search-finder");
   var matTakenInput = "", matTakenClick = 0, matAllSplitedValue, matSplittedInpValue, matTotalSearchRes = [];
   matInpBox.addEventListener("keyup", function (e) {
