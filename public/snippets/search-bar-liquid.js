@@ -3,7 +3,7 @@
 //there should a minified file in that template of this.. 
 {
   var matInpBox;
-  let matFinder;
+  var matFinder;
   window.allInputBoxes = document.getElementsByClassName('mat_input_c');
   window.allmatFinder = document.getElementsByClassName("mat-search-finder_c");
   for (let i = 0; i < window.allInputBoxes.length; i++) {

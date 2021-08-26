@@ -11,8 +11,8 @@
 
 {
     var matulAllVendors = [], matulTotalSearchRes = [], matulFinalResult;
-    let matSearchString = matulGetParameterByName('search-result'), splittedInpValue;
-    let matSearchBox =  document.getElementById('mat_input');
+    var matSearchString = matulGetParameterByName('search-result'), splittedInpValue;
+    var matSearchBox =  document.getElementById('mat_input');
     matSearchBox.value = matSearchString;
     splittedInpValue = matSearchString.split(",");
     splittedInpValue = splittedInpValue.map(split => split.trim());

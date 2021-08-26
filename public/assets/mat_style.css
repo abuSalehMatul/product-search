@@ -54,6 +54,7 @@
 .mat-product-insearch img {
     width: 13%;
     height: auto;
+    max-height: 50px;
     display: block;
     margin: auto;
 }
