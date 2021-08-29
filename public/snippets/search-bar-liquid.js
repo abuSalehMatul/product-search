@@ -2,58 +2,87 @@
 //this piece of code will go under the snippet search-bar.liquid
 //there should a minified file in that template of this.. 
 {
-  var matInpBox;
-  var matFinder;
   window.allInputBoxes = document.getElementsByClassName('mat_input_c');
   window.allmatFinder = document.getElementsByClassName("mat-search-finder_c");
-  for (let i = 0; i < window.allInputBoxes.length; i++) {
-    if (window.screen.width < 768) {
-      matInpBox = window.allInputBoxes[1];
-      matFinder = window.allmatFinder[1];
-    }
-    else {
-      matInpBox = document.getElementById('mat_input');
-      matFinder = document.getElementById("mat-search-finder");
-    }
-  }
 
-  //let matFinder = document.getElementById("mat-search-finder");
+  var matInpBox;
+  window.addEventListener('orientationchange', function (event) {
+    window.allInputBoxes = document.getElementsByClassName('mat_input_c');
+    window.allmatFinder = document.getElementsByClassName("mat-search-finder_c");
+    matInpBox = window.allInputBoxes[0]
+    for (let i = 1; i < window.allInputBoxes.length; i++) {
+      if (
+        window.allInputBoxes[i].getBoundingClientRect().top >
+        window.allInputBoxes[i - 1].getBoundingClientRect().top
+      )
+        matInpBox = window.allInputBoxes[i]
+    }
+    matInpBox.removeEventListener("keyup", () => { });
+    matulAddEventKeyupListener();
+  });
+  window.addEventListener('resize', () => {
+    window.allInputBoxes = document.getElementsByClassName('mat_input_c');
+    window.allmatFinder = document.getElementsByClassName("mat-search-finder_c");
+    matInpBox = window.allInputBoxes[0]
+    for (let i = 1; i < window.allInputBoxes.length; i++) {
+      if (
+        window.allInputBoxes[i].getBoundingClientRect().top >
+        window.allInputBoxes[i - 1].getBoundingClientRect().top
+      )
+        matInpBox = window.allInputBoxes[i]
+    }
+    matInpBox.removeEventListener("keyup", () => { });
+    matulAddEventKeyupListener();
+  });
+
+  matInpBox = window.allInputBoxes[0]
+  for (let i = 1; i < window.allInputBoxes.length; i++) {
+    if (
+      window.allInputBoxes[i].getBoundingClientRect().top >
+      window.allInputBoxes[i - 1].getBoundingClientRect().top
+    )
+      matInpBox = window.allInputBoxes[i]
+  }
   var matTakenInput = "", matTakenClick = 0, matAllSplitedValue, matSplittedInpValue, matTotalSearchRes = [];
-  if (matInpBox) {
-    matInpBox.addEventListener("keyup", function (e) {
-      let inputValue = e.target.value;
-      if (e.keyCode == 32 || !inputValue || e.keyCode == 188) {
-        matCloseAllLists();
-        return false;
-      };
-      if (inputValue == matTakenInput) return false;
-      matTakenInput = inputValue;
+  matulAddEventKeyupListener();
+  function matulAddEventKeyupListener() {
+    if (matInpBox) {
+      matInpBox.addEventListener("keyup", function (e) {
+        let inputValue = e.target.value;
+        if (e.keyCode == 32 || !inputValue || e.keyCode == 188) {
+          matCloseAllLists();
+          return false;
+        };
+        if (inputValue == matTakenInput) return false;
+        matTakenInput = inputValue;
 
-      matSplittedInpValue = inputValue.split(",");
-      matSplittedInpValue = matSplittedInpValue.map(split => split.trim())
-      let val = matSplittedInpValue[matSplittedInpValue.length - 1];
-      if (!val) return false;
-      if (typeof matTotalSearchRes[val] != "undefined") {
-        matDrawAutoComplete(matTotalSearchRes, val)
-      } else {
-        $.ajax({
-          url: window.location.origin + "/search",
-          data: {
-            q: val + "*",
-            type: "product",
-            view: "json",
-          },
-          dataType: "json",
-          success: function (data) {
-            matTotalSearchRes[val] = data;
-            matDrawAutoComplete(matTotalSearchRes, val)
-          }
-        });
-      }
+        matSplittedInpValue = inputValue.split(",");
+        matSplittedInpValue = matSplittedInpValue.map(split => split.trim())
+        let val = matSplittedInpValue[matSplittedInpValue.length - 1];
+        if (!val) return false;
+        if (typeof matTotalSearchRes[val] != "undefined") {
+          matDrawAutoComplete(matTotalSearchRes, val)
+        } else {
+          $.ajax({
+            url: window.location.origin + "/search",
+            data: {
+              q: val + "*",
+              type: "product",
+              view: "json",
+            },
+            dataType: "json",
+            success: function (data) {
+              matTotalSearchRes[val] = data;
+              matDrawAutoComplete(matTotalSearchRes, val)
+            }
+          });
+        }
 
 
-    });
+      });
+    }
   }
+
 
   function matDrawAutoComplete(finalResult, val) {
     matCloseAllLists();
@@ -87,20 +116,18 @@
     }
   }
 
-  if(matFinder){
-    matFinder.addEventListener("click", (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      if (matTakenClick == 0) {
-        matTakenClick = 1;
-      } else return "";
-      let redirectionUrl = `https://${Shopify.shop}/pages/finder?search-result=${encodeURIComponent(matInpBox.value)}`;
-      //console.log(redirectionUrl);
-      window.location.href = redirectionUrl;
-  
-    })
-  }
-  
+  $(".mat-search-finder_c").on('click', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (matTakenClick == 0) {
+      matTakenClick = 1;
+    } else return "";
+    let redirectionUrl = `https://${Shopify.shop}/pages/finder?search-result=${encodeURIComponent(matInpBox.value)}`;
+    //console.log(redirectionUrl);
+    window.location.href = redirectionUrl;
+  });
+
+
   function matCloseAllLists(elmnt) {
     /*close all autocomplete lists in the document,
     except the one passed as an argument:*/
